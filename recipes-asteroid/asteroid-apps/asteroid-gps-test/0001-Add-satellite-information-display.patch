@@ -10,14 +10,14 @@ QtPositioning 5.14 or higher.
 Also adds DisplayBlanking from Nemo.KeepAlive to prevent screen blanking
 during GPS testing.
 ---
- src/main.qml | 100 ++++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 91 insertions(+), 9 deletions(-)
+ src/main.qml | 100 +++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 86 insertions(+), 14 deletions(-)
 
 diff --git a/src/main.qml b/src/main.qml
 index 1111111..2222222 100644
 --- a/src/main.qml
 +++ b/src/main.qml
-@@ -16,31 +16,113 @@
+@@ -16,30 +16,111 @@
   */
  
  import QtQuick 2.9
@@ -138,6 +138,5 @@ index 1111111..2222222 100644
 +        sats.active = true
 +    }
  }
-+
 -- 
 2.34.1
