@@ -7,11 +7,27 @@ When trying to use `SatelliteSource` QML type from Qt Positioning, you may encou
 SatelliteSource is not a type
 ```
 
+## Root Cause
+
+1. The `SatelliteSource` QML type was introduced in **Qt 5.14** (QtPositioning 5.14)
+2. **Meta-asteroid was using Qt 5.6 for qtlocation by default**, which does not support `SatelliteSource`
+3. Simply changing the import statement is not sufficient - the underlying Qt module must be upgraded
+
 ## Solution
 
-The `SatelliteSource` QML type was introduced in **Qt 5.14** (QtPositioning 5.14). To use it, you must:
+This requires **TWO changes**:
 
-### 1. Update the import statement
+### 1. Upgrade qtlocation to Qt 5.15 (at the build system level)
+
+The `recipes-qt/qt5/qtlocation_git.bbappend` file now includes:
+```bitbake
+# Override Qt version to use 5.15 branch for SatelliteSource support
+QT_MODULE_BRANCH = "5.15"
+```
+
+This ensures qtlocation is built from Qt 5.15 source instead of Qt 5.6.
+
+### 2. Update the QML import statement (in your application code)
 
 Change from:
 ```qml
@@ -28,7 +44,7 @@ Or at minimum:
 import QtPositioning 5.14
 ```
 
-### 2. Use SatelliteSource correctly
+### 3. Use SatelliteSource correctly
 
 ```qml
 import QtQuick 2.9
@@ -57,7 +73,7 @@ Application {
 }
 ```
 
-### 3. Key properties and signals
+## Key Properties and Signals
 
 **SatelliteSource provides:**
 - `active` (bool): Whether the source is active
@@ -69,7 +85,7 @@ Application {
 - `onSatellitesInViewChanged`: Emitted when visible satellites change
 - `onSatellitesInUseChanged`: Emitted when satellites used for fix change
 
-### 4. Dependencies
+## Dependencies
 
 Your recipe must include `qtlocation` as a dependency:
 
@@ -78,6 +94,14 @@ DEPENDS += "qtlocation"
 RDEPENDS:${PN} += "qtlocation"
 ```
 
+## Why Both Changes Are Needed
+
+**The Qt 5.15 upgrade is critical** because:
+- Qt 5.6 (released 2016) does not have `SatelliteSource` at all
+- Qt 5.14+ (released 2019) introduced `SatelliteSource` support
+- Without upgrading the Qt source, changing the import statement alone will fail
+- The qtlocation module must be built with Qt 5.15 source to provide the functionality
+
 ## Example
 
 See the patch `0001-Add-satellite-information-display.patch` in this directory for a complete working example that displays:
@@ -85,4 +109,4 @@ See the patch `0001-Add-satellite-information-display.patch` in this directory f
 - Timestamp
 - Satellite information (used/visible count)
 
-This patch is applied to the asteroid-gps-test application and demonstrates proper usage of both `PositionSource` and `SatelliteSource`.
+This patch is applied to the asteroid-gps-test application and demonstrates proper usage of both `PositionSource` and `SatelliteSource` with Qt 5.15.
