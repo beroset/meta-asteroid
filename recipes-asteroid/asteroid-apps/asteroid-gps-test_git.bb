@@ -14,5 +14,6 @@ REMOVE_TRANSLATIONS = "1"
 require asteroid-app.inc
 
 DEPENDS += "qtlocation qtdeclarative nemo-keepalive"
-RDEPENDS:${PN} += "qtlocation qtdeclarative-qmlplugins nemo-keepalive"
+# Explicitly require qtlocation-qmlplugins for QtPositioning QML module
+RDEPENDS:${PN} += "qtlocation-qmlplugins qtdeclarative-qmlplugins nemo-keepalive"
 
