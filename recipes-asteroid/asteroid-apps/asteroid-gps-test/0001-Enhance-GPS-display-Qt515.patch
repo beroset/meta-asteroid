@@ -1,18 +1,24 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: AsteroidOS <dev@asteroidos.org>
-Date: Fri, 31 Jan 2026 20:00:00 +0000
-Subject: [PATCH] Add comprehensive GPS display with satellite information
+Date: Fri, 31 Jan 2026 23:00:00 +0000
+Subject: [PATCH] Enhance GPS display with detailed positioning information
 
-Enhances the GPS test application to show detailed positioning
-information including satellite data using SatelliteSource.
-Works with Qt 5.15 (QtPositioning 5.15).
+Improves the GPS test application to show detailed position
+information. Uses Qt 5.15 QtPositioning 5.15.
+
+Note: Qt does not expose satellite information (satellite count,
+signal strength, etc.) to QML. The QGeoSatelliteInfoSource C++
+class exists but is not available as a QML type. This patch
+uses only PositionSource which IS available.
 
 Features:
-- GPS position (latitude/longitude)
+- GPS position (latitude/longitude) 
 - Position accuracy
-- Validity status with color indicator
+- Altitude
+- Speed
+- Heading/bearing
+- Validity status
 - Timestamp display
-- Satellite information (used/visible count)
 - Screen blanking prevention
 
 ---
@@ -48,61 +54,80 @@ index 1111111..2222222 100644
 +        spacing: 2
 +
 +        Label {
-+            height: parent.height * 0.2
++            height: parent.height * 0.15
 +            width: parent.width
-+            text: src.name
++            text: "GPS Test - " + src.name
 +            horizontalAlignment: Text.AlignHCenter
 +            verticalAlignment: Text.AlignVCenter
++            font.pixelSize: 18
 +        }
 +
 +        Label {
-+            height: parent.height * 0.2
++            height: parent.height * 0.12
 +            width: parent.width
-+            text: src.valid ? "valid" : "not valid"
++            text: src.valid ? "GPS Active" : "Searching..."
 +            horizontalAlignment: Text.AlignHCenter
 +            verticalAlignment: Text.AlignVCenter
++            color: src.valid ? "#00ff00" : "#ffaa00"
 +        }
 +
 +        Label {
 +            id: latitude
-+            height: 30
++            height: parent.height * 0.12
 +            width: parent.width
-+            text: "no latitude"
++            text: "Lat: --"
 +            horizontalAlignment: Text.AlignHCenter
 +            verticalAlignment: Text.AlignVCenter
 +        }
 +
 +        Label {
 +            id: longitude
-+            height: 30
++            height: parent.height * 0.12
 +            width: parent.width
-+            text: "no longitude"
++            text: "Lon: --"
++            horizontalAlignment: Text.AlignHCenter
++            verticalAlignment: Text.AlignVCenter
++        }
++
++        Label {
++            id: accuracy
++            height: parent.height * 0.12
++            width: parent.width
++            text: "Accuracy: --"
++            horizontalAlignment: Text.AlignHCenter
++            verticalAlignment: Text.AlignVCenter
++        }
++
++        Label {
++            id: altitude
++            height: parent.height * 0.10
++            width: parent.width
++            text: "Alt: --"
++            horizontalAlignment: Text.AlignHCenter
++            verticalAlignment: Text.AlignVCenter
++        }
++
++        Label {
++            id: speed
++            height: parent.height * 0.10
++            width: parent.width
++            text: "Speed: --"
 +            horizontalAlignment: Text.AlignHCenter
 +            verticalAlignment: Text.AlignVCenter
 +        }
 +
 +        Label {
 +            id: timestamp
-+            height: parent.height / 4
++            height: parent.height * 0.15
 +            width: parent.width
-+            text: "no timestamp"
++            text: "--"
 +            horizontalAlignment: Text.AlignHCenter
 +            verticalAlignment: Text.AlignVCenter
-+        }
-+
-+        Label {
-+            id: satinfo
-+            height: 30
-+            width: parent.width
-+            text: "used: 0  vis: 0"
-+            horizontalAlignment: Text.AlignHCenter
-+            verticalAlignment: Text.AlignVCenter
++            wrapMode: Text.WordWrap
++            font.pixelSize: 14
 +        }
      }
  
-+    /*
-+     * Position fixes
-+     */
      PositionSource {
          id: src
          updateInterval: 1000
@@ -114,34 +139,19 @@ index 1111111..2222222 100644
 -            var coord = src.position.coordinate;
 -            positionText.text = "Coordinate:\n" + coord.longitude + " - " + coord.latitude;
 +            var coord = position.coordinate
-+            latitude.text = coord.latitude.toFixed(6)
-+            longitude.text = coord.longitude.toFixed(6)
++            latitude.text = "Lat: " + coord.latitude.toFixed(6)
++            longitude.text = "Lon: " + coord.longitude.toFixed(6)
++            accuracy.text = "Accuracy: " + position.horizontalAccuracy.toFixed(1) + "m"
++            altitude.text = "Alt: " + (coord.altitude > -1000 ? coord.altitude.toFixed(1) + "m" : "--")
++            speed.text = "Speed: " + (position.speed >= 0 ? position.speed.toFixed(1) + " m/s" : "--")
 +            if (position.timestamp)
 +                timestamp.text = position.timestamp.toString()
-+        }
-+    }
-+
-+    /*
-+     * Satellite information (used / visible)
-+     */
-+    SatelliteSource {
-+        id: sats
-+        active: false
-+
-+        onSatellitesInUseChanged: updateSatInfo()
-+        onSatellitesInViewChanged: updateSatInfo()
-+
-+        function updateSatInfo() {
-+            satinfo.text =
-+                "used: " + satellitesInUse.length +
-+                "  vis: " + satellitesInView.length
          }
      }
 +
 +    Component.onCompleted: {
 +        DisplayBlanking.preventBlanking = true
 +        src.active = true
-+        sats.active = true
 +    }
  }
 -- 
