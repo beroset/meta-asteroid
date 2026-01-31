@@ -1,4 +1,4 @@
-PACKAGECONFIG = "geoclue geoservices_itemsoverlay geoservices_osm geoservices_esri"
+PACKAGECONFIG = "geoclue geoservices_itemsoverlay geoservices_osm geoservices_esri declarative"
 RDEPENDS:${PN} += "geoclue"
 
 do_install:append() {
