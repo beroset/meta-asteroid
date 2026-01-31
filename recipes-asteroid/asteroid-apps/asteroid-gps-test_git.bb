@@ -13,6 +13,6 @@ REMOVE_TRANSLATIONS = "1"
 
 require asteroid-app.inc
 
-DEPENDS += "qtlocation nemo-keepalive"
-RDEPENDS:${PN} += "qtlocation nemo-keepalive"
+DEPENDS += "qtlocation qtdeclarative nemo-keepalive"
+RDEPENDS:${PN} += "qtlocation qtdeclarative-qmlplugins nemo-keepalive"
 
