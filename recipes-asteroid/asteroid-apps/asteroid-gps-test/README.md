@@ -1,39 +1,41 @@
-# GPS Positioning in AsteroidOS (Qt 5.6)
+# GPS Positioning with SatelliteSource in AsteroidOS (Qt 5.15)
 
-## Important: SatelliteSource Not Available
+## SatelliteSource Now Available!
 
-**`SatelliteSource` does NOT work in AsteroidOS** because it requires Qt 5.14+, but AsteroidOS uses Qt 5.6.
+With the Qt 5.15 upgrade, `SatelliteSource` is now fully supported in AsteroidOS.
 
-## What Works: PositionSource
+## Features
 
-Use `PositionSource` from QtPositioning 5.2 which provides:
+### PositionSource (GPS Position)
 
-✅ **Available in Qt 5.6:**
-- GPS coordinates (latitude/longitude)
-- Position accuracy
-- Altitude, speed, heading
-- Timestamps
-- Validity status
+✅ GPS coordinates (latitude/longitude)
+✅ Position accuracy
+✅ Altitude, speed, heading
+✅ Timestamps
+✅ Validity status
 
-❌ **NOT Available (requires Qt 5.14+):**
-- `SatelliteSource` type
-- Satellite count (in use/in view)
-- Individual satellite info
+### SatelliteSource (Satellite Information)
 
-## Working Example
+✅ **Satellite count (in use)** - Satellites used for positioning
+✅ **Satellite count (in view)** - All visible satellites
+✅ **Real-time updates** - Get notified when satellite status changes
+
+## Complete Example
 
 ```qml
 import QtQuick 2.9
-import QtPositioning 5.2
+import QtPositioning 5.15
 import Nemo.KeepAlive 1.1
 import org.asteroid.controls 1.0
 
 Application {
     Column {
-        Label { text: src.valid ? "GPS Active" : "Searching..." }
+        Label { text: "GPS Status" }
+        Label { text: src.valid ? "Active" : "Searching..." }
         Label { text: "Lat: " + src.position.coordinate.latitude.toFixed(6) }
         Label { text: "Lon: " + src.position.coordinate.longitude.toFixed(6) }
         Label { text: "Accuracy: " + src.position.horizontalAccuracy.toFixed(1) + "m" }
+        Label { text: "Satellites: " + sats.satellitesInUse.length + " / " + sats.satellitesInView.length }
     }
 
     PositionSource {
@@ -41,6 +43,19 @@ Application {
         updateInterval: 1000
         active: true
         preferredPositioningMethods: PositionSource.SatellitePositioningMethods
+    }
+
+    SatelliteSource {
+        id: sats
+        active: true
+
+        onSatellitesInUseChanged: {
+            console.log("Satellites in use:", satellitesInUse.length)
+        }
+
+        onSatellitesInViewChanged: {
+            console.log("Satellites in view:", satellitesInView.length)
+        }
     }
 
     Component.onCompleted: {
@@ -51,18 +66,24 @@ Application {
 
 ## The Enhanced Patch
 
-The patch `0001-Enhance-GPS-display-Qt56-compatible.patch` demonstrates:
-- Using PositionSource (Qt 5.6 compatible)
+The patch `0001-Add-satellite-information-display.patch` demonstrates:
+- Using PositionSource with Qt 5.15
+- Using SatelliteSource to display satellite counts
 - Displaying position, accuracy, and timestamps
 - GPS validity status with color indicators
 - Screen blanking prevention
 
-## Why SatelliteSource Doesn't Work
+## SatelliteSource API
 
-1. **Qt Version:** AsteroidOS uses Qt 5.6 (2016)
-2. **SatelliteSource Introduced:** Qt 5.14 (2019)
-3. **ABI Compatibility:** Cannot mix Qt 5.6 qtbase with Qt 5.15 qtlocation
-4. **Required Fix:** System-wide Qt upgrade (major undertaking)
+### Properties
+- `active` (bool) - Enable/disable satellite tracking
+- `satellitesInView` (list) - All visible satellites
+- `satellitesInUse` (list) - Satellites used for fix
+- `updateInterval` (int) - Update frequency in milliseconds
+
+### Signals
+- `onSatellitesInViewChanged` - Called when visible satellites change
+- `onSatellitesInUseChanged` - Called when satellites in use change
 
 ## Dependencies
 
@@ -72,7 +93,18 @@ DEPENDS += "qtlocation nemo-keepalive"
 RDEPENDS:${PN} += "qtlocation nemo-keepalive"
 ```
 
-## See Also
+## Qt 5.15 Upgrade
 
-- `SATELLITESOURCE_NOT_AVAILABLE.md` - Full explanation
-- Enhanced asteroid-gps-test patch - Working Qt 5.6 example
+AsteroidOS has been upgraded from Qt 5.6 to Qt 5.15, enabling:
+- SatelliteSource support
+- Improved Qt Positioning APIs
+- Better performance
+- Modern Qt features
+
+See `QT515_UPGRADE.md` in the repository root for details.
+
+## References
+
+- Qt 5.15 Positioning Documentation
+- Qt 5.15 SatelliteSource API
+- Enhanced asteroid-gps-test application

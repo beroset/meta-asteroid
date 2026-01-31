@@ -2,7 +2,7 @@
 # Copyright (C) 2013-2014 Martin Jansa <martin.jansa@gmail.com>
 
 QT_MODULE ?= "${BPN}"
-QT_MODULE_BRANCH ?= "5.6"
+QT_MODULE_BRANCH ?= "5.15"
 
 # each module needs to define valid SRCREV
 SRC_URI = " \
@@ -11,4 +11,4 @@ SRC_URI = " \
 
 S = "${WORKDIR}/git"
 
-PV = "5.6.1+git${SRCPV}"
+PV = "5.15.0+git${SRCPV}"
