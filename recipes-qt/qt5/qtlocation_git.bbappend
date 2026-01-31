@@ -1,6 +1,3 @@
-# Override Qt version to use 5.15 branch for SatelliteSource support
-QT_MODULE_BRANCH = "5.15"
-
 PACKAGECONFIG = "geoclue geoservices_itemsoverlay geoservices_osm geoservices_esri"
 RDEPENDS:${PN} += "geoclue"
 
