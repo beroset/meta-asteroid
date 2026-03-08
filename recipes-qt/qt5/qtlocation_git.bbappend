@@ -1,5 +1,8 @@
 PACKAGECONFIG = "geoclue geoservices_itemsoverlay geoservices_osm geoservices_esri"
-RDEPENDS:${PN} += "geoclue"
+
+# QtPositioning QML types require qtdeclarative
+DEPENDS += "qtdeclarative"
+RDEPENDS:${PN} += "geoclue qtdeclarative-qmlplugins"
 
 do_install:append() {
     rm ${D}/usr/lib/plugins/position/libqtposition_geoclue2.so
