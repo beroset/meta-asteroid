@@ -1,0 +1,20 @@
+From b5c1ea7f7ddef1b3126f4f227b2bde532e85ab5f Mon Sep 17 00:00:00 2001
+From: KonTy <konty@users.noreply.github.com>
+Date: Fri, 10 Apr 2026 12:00:00 +0200
+Subject: [PATCH] Add QTextStream include for Qt 5.12 compatibility
+
+Qt 5.12 requires explicit inclusion of QTextStream.
+
+Upstream-Status: Pending
+Signed-off-by: KonTy <konty@users.noreply.github.com>
+---
+ src/utils/src/devicespecs.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/utils/src/devicespecs.cpp b/src/utils/src/devicespecs.cpp
+--- a/src/utils/src/devicespecs.cpp
++++ b/src/utils/src/devicespecs.cpp
+@@ -2,2 +2,3 @@
+ #include <QFile>
++#include <QTextStream>
+ #include <QJsonObject>
