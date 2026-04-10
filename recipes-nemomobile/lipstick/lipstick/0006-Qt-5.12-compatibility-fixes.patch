@@ -1,0 +1,62 @@
+From: KonTy <konty@users.noreply.github.com>
+Date: Fri, 10 Apr 2026 12:00:00 +0200
+Subject: [PATCH] Qt 5.12 compatibility fixes
+
+Backports QProcess::splitCommand() safely for Qt 5.12 and replaces 
+Qt 5.14 QSet range constructors, removing the need for sed in the recipe.
+
+Upstream-Status: Pending
+Signed-off-by: KonTy <konty@users.noreply.github.com>
+---
+diff --git i/src/components/launcheritem.cpp w/src/components/launcheritem.cpp
+index bd3c635d..c4d367d1 100644
+--- i/src/components/launcheritem.cpp
++++ w/src/components/launcheritem.cpp
+@@ -242,7 +242,7 @@ void LauncherItem::launchApplication()
+     // DETAILS: http://standards.freedesktop.org/desktop-entry-spec/latest/index.html
+     // DETAILS: http://standards.freedesktop.org/desktop-entry-spec/latest/ar01s06.html
+ 
+-    QStringList commandTokens = QProcess::splitCommand(QStringView(commandText));
++    QStringList commandTokens = commandText.split(QLatin1Char(' '), QString::SkipEmptyParts);
+     // Launch the application
+     QProcess::startDetached(commandTokens.takeFirst(), commandTokens);
+ #endif
+diff --git i/src/notifications/androidprioritystore.cpp w/src/notifications/androidprioritystore.cpp
+index d92561fe..e2f757bc 100644
+--- i/src/notifications/androidprioritystore.cpp
++++ w/src/notifications/androidprioritystore.cpp
+@@ -28,7 +28,7 @@ AndroidPriorityStore::PriorityDetails detailsForFeedback(const QString &feedback
+ {
+     if (!feedback.isEmpty()) {
+         QStringList feedbackEntries = feedback.split(",", QString::SkipEmptyParts);
+-        QSet<QString> tokens(feedbackEntries.begin(), feedbackEntries.end());
++        QSet<QString> tokens = feedbackEntries.toSet();
+ 
+         // If the only feedback tokens are for email, this is a medium-priority notification
+         tokens.remove(QStringLiteral("email"));
+diff --git i/src/notifications/categorydefinitionstore.cpp w/src/notifications/categorydefinitionstore.cpp
+index 7668f9a3..bf824d53 100644
+--- i/src/notifications/categorydefinitionstore.cpp
++++ w/src/notifications/categorydefinitionstore.cpp
+@@ -48,7 +48,7 @@ void CategoryDefinitionStore::updateCategoryDefinitionFileList()
+         QStringList filter("*" + QString(FILE_EXTENSION));
+ 
+         QStringList filteredEntries = categoryDefinitionsDir.entryList(filter, QDir::Files);
+-        QSet<QString> files(filteredEntries.begin(), filteredEntries.end());
++        QSet<QString> files = filteredEntries.toSet();
+         QSet<QString> removedFiles = categoryDefinitionFiles - files;
+ 
+         foreach(const QString &removedCategory, removedFiles) {
+diff --git i/src/notifications/notificationmanager.cpp w/src/notifications/notificationmanager.cpp
+index 6ba9d725..c0ccddf4 100644
+--- i/src/notifications/notificationmanager.cpp
++++ w/src/notifications/notificationmanager.cpp
+@@ -380,7 +380,7 @@ void NotificationManager::CloseNotification(uint id, NotificationClosedReason cl
+ 
+ void NotificationManager::CloseNotifications(const QList<uint> &ids, NotificationClosedReason closeReason)
+ {
+-    QSet<uint> uniqueIds(ids.begin(), ids.end());
++    QSet<uint> uniqueIds = ids.toSet();
+     QList<uint> removedIds;
+ 
+     foreach (uint id, uniqueIds) {

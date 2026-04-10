@@ -9,6 +9,9 @@ PR = "r1"
 PV = "+git${SRCPV}"
 inherit cmake_qt5 pkgconfig
 
+# Qt 5.12 compatible: add missing QTextStream include
+SRC_URI += "file://0001-Add-QTextStream-include-for-Qt-5.12-compatibility.patch"
+
 DEPENDS += "extra-cmake-modules qtdeclarative qtsvg qtvirtualkeyboard mlite mapplauncherd-booster-qtcomponents qtdeclarative-native"
 RDEPENDS:${PN} += "asteroid-machine-config qtsvg-plugins qtvirtualkeyboard asteroid-icons-ion"
 

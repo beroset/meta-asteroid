@@ -1,0 +1,31 @@
+From: KonTy <konty@users.noreply.github.com>
+Date: Fri, 10 Apr 2026 12:00:00 +0200
+Subject: [PATCH] Qt 5.12 compatibility fixes for qofono
+
+Compatibility fixes for Qt 5.12 QOfono instead of newer ones.
+
+Upstream-Status: Pending
+Signed-off-by: KonTy <konty@users.noreply.github.com>
+---
+diff --git i/src/deviceinfo.cpp w/src/deviceinfo.cpp
+index 4ffdba9..ee85175 100644
+--- i/src/deviceinfo.cpp
++++ w/src/deviceinfo.cpp
+@@ -140,7 +140,7 @@ QStringList DeviceInfoPrivate::imeiNumbers()
+ QSharedPointer<QOfonoManager> DeviceInfoPrivate::ofonoManager()
+ {
+     if (m_ofonoManager.isNull()) {
+-        m_ofonoManager = QOfonoManager::instance(m_synchronousInit);
++        m_ofonoManager = QOfonoManager::instance();
+         connect(&*m_ofonoManager, &QOfonoManager::modemsChanged, this, &DeviceInfoPrivate::modemsChanged);
+ 
+         m_updateModemPropertiesTimer = new QTimer(this);
+@@ -191,7 +191,7 @@ void DeviceInfoPrivate::modemRemoved(const QString &modemName)
+ void DeviceInfoPrivate::modemAdded(const QString &modemName)
+ {
+     if (!m_modemHash.contains(modemName)) {
+-        QSharedPointer<QOfonoModem> modem(QOfonoModem::instance(modemName, m_synchronousInit));
++        QSharedPointer<QOfonoModem> modem(QOfonoModem::instance(modemName));
+         connect(&*modem, &QOfonoModem::serialChanged, this, &DeviceInfoPrivate::modemSerialChanged);
+         m_modemHash[modemName] = modem;
+         m_modemList.append(modemName);

@@ -9,6 +9,7 @@ SRC_URI = "git://github.com/AsteroidOS/lipstick.git;protocol=https;branch=2.0 \
     file://0003-Disable-USB-mode-notifications-on-connect.patch \
     file://0004-ScreenshotService-Use-system-bus-to-workaround-the-s.patch \
     file://0005-BluetoothAgent-Advertise-less-hardware-capabilities-.patch \
+    file://0006-Qt-5.12-compatibility-fixes.patch \
     file://Notifications/"
 SRCREV = "b9962d7c81473f6fda1479ae3405fd6f112c6195"
 PR = "r1"
