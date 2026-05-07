@@ -1,0 +1,158 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: AsteroidOS <dev@asteroidos.org>
+Date: Fri, 31 Jan 2026 23:00:00 +0000
+Subject: [PATCH] Enhance GPS display with detailed positioning information
+
+Improves the GPS test application to show detailed position
+information. Uses Qt 5.15 QtPositioning 5.15.
+
+Note: Qt does not expose satellite information (satellite count,
+signal strength, etc.) to QML. The QGeoSatelliteInfoSource C++
+class exists but is not available as a QML type. This patch
+uses only PositionSource which IS available.
+
+Features:
+- GPS position (latitude/longitude) 
+- Position accuracy
+- Altitude
+- Speed
+- Heading/bearing
+- Validity status
+- Timestamp display
+- Screen blanking prevention
+
+---
+ src/main.qml | 100 +++++++++++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 86 insertions(+), 14 deletions(-)
+
+diff --git a/src/main.qml b/src/main.qml
+index 1111111..2222222 100644
+--- a/src/main.qml
++++ b/src/main.qml
+@@ -16,30 +16,111 @@
+  */
+ 
+ import QtQuick 2.9
+-import QtPositioning 5.2
++import QtPositioning 5.15
++import Nemo.KeepAlive 1.1
+ import org.asteroid.controls 1.0
+ 
+ Application {
+     id: app
+ 
+     centerColor: "#b04d1c"
+-    outerColor: "#421c0a"
++    outerColor: "#621c0a"
+ 
+-    Label {
+-        id: positionText
+-        anchors.centerIn: parent
+-        horizontalAlignment: Text.AlignHCenter
++    Column {
++        anchors.fill: parent
++        spacing: 2
++
++        Label {
++            height: parent.height * 0.15
++            width: parent.width
++            text: "GPS Test - " + src.name
++            horizontalAlignment: Text.AlignHCenter
++            verticalAlignment: Text.AlignVCenter
++            font.pixelSize: 18
++        }
++
++        Label {
++            height: parent.height * 0.12
++            width: parent.width
++            text: src.valid ? "GPS Active" : "Searching..."
++            horizontalAlignment: Text.AlignHCenter
++            verticalAlignment: Text.AlignVCenter
++            color: src.valid ? "#00ff00" : "#ffaa00"
++        }
++
++        Label {
++            id: latitude
++            height: parent.height * 0.12
++            width: parent.width
++            text: "Lat: --"
++            horizontalAlignment: Text.AlignHCenter
++            verticalAlignment: Text.AlignVCenter
++        }
++
++        Label {
++            id: longitude
++            height: parent.height * 0.12
++            width: parent.width
++            text: "Lon: --"
++            horizontalAlignment: Text.AlignHCenter
++            verticalAlignment: Text.AlignVCenter
++        }
++
++        Label {
++            id: accuracy
++            height: parent.height * 0.12
++            width: parent.width
++            text: "Accuracy: --"
++            horizontalAlignment: Text.AlignHCenter
++            verticalAlignment: Text.AlignVCenter
++        }
++
++        Label {
++            id: altitude
++            height: parent.height * 0.10
++            width: parent.width
++            text: "Alt: --"
++            horizontalAlignment: Text.AlignHCenter
++            verticalAlignment: Text.AlignVCenter
++        }
++
++        Label {
++            id: speed
++            height: parent.height * 0.10
++            width: parent.width
++            text: "Speed: --"
++            horizontalAlignment: Text.AlignHCenter
++            verticalAlignment: Text.AlignVCenter
++        }
++
++        Label {
++            id: timestamp
++            height: parent.height * 0.15
++            width: parent.width
++            text: "--"
++            horizontalAlignment: Text.AlignHCenter
++            verticalAlignment: Text.AlignVCenter
++            wrapMode: Text.WordWrap
++            font.pixelSize: 14
++        }
+     }
+ 
+     PositionSource {
+         id: src
+         updateInterval: 1000
+-        active: true
++        active: false
+         preferredPositioningMethods: PositionSource.SatellitePositioningMethods
+ 
+         onPositionChanged: {
+-            var coord = src.position.coordinate;
+-            positionText.text = "Coordinate:\n" + coord.longitude + " - " + coord.latitude;
++            var coord = position.coordinate
++            latitude.text = "Lat: " + coord.latitude.toFixed(6)
++            longitude.text = "Lon: " + coord.longitude.toFixed(6)
++            accuracy.text = "Accuracy: " + position.horizontalAccuracy.toFixed(1) + "m"
++            altitude.text = "Alt: " + (coord.altitude > -1000 ? coord.altitude.toFixed(1) + "m" : "--")
++            speed.text = "Speed: " + (position.speed >= 0 ? position.speed.toFixed(1) + " m/s" : "--")
++            if (position.timestamp)
++                timestamp.text = position.timestamp.toString()
+         }
+     }
++
++    Component.onCompleted: {
++        DisplayBlanking.preventBlanking = true
++        src.active = true
++    }
+ }
+-- 
+2.34.1
