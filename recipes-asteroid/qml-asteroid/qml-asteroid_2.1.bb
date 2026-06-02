@@ -9,7 +9,7 @@ PR = "r1"
 PV = "+git${SRCPV}"
 inherit cmake_qt5 pkgconfig
 
-DEPENDS += "extra-cmake-modules qtdeclarative qtsvg qtvirtualkeyboard mlite mapplauncherd-booster-qtcomponents qtdeclarative-native"
+DEPENDS += "extra-cmake-modules qtdeclarative qtsvg qtvirtualkeyboard mapplauncherd-booster-qtcomponents qtdeclarative-native"
 RDEPENDS:${PN} += "asteroid-machine-config qtsvg-plugins qtvirtualkeyboard asteroid-icons-ion"
 
 FILES:${PN} += "/usr/lib /usr/share/icons/asteroid/"

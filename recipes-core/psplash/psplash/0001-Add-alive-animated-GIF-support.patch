@@ -1185,11 +1185,10 @@ index 261dd1c..4436e52 100644
     */
    psplash_fb_flip(fb, 1);
 +#endif
-+
+ 
 +#ifdef PSPLASH_ENABLE_ANIMATED_GIF
 +  psplash_alive_init();
 +#endif
- 
    psplash_main (fb, pipe_fd, 0);
  
 +#ifdef PSPLASH_ENABLE_ANIMATED_GIF
