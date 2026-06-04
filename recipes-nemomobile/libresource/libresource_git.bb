@@ -11,7 +11,7 @@ S = "${WORKDIR}/git"
 
 # Parallel make is broken:
 # No rule to make target '../src/libresource.la', needed by 'libresource-glib.la'.  Stop.
-PARALLEL_MAKE=""
+PARALLEL_MAKE = ""
 
 DEPENDS += " glib-2.0 dbus-glib dbus libcheck"
 # Out-of-source build is also broken
